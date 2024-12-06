@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Booking Calendar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .calendar {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .time-slot {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #f4f4f4;
+            transition: background-color 0.3s;
+        }
+
+        .time-slot.available:hover {
+            background-color: #d4f0d4;
+        }
+
+        .time-slot.unavailable {
+            background-color: #f8d7da;
+            cursor: not-allowed;
+        }
+
+        .time-slot.booked {
+            background-color: #cce5ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar">
+        <div class="calendar-header">
+            <button id="prev-day">&lt; Previous</button>
+            <h2 id="selected-date"></h2>
+            <button id="next-day">Next &gt;</button>
+        </div>
+        <div class="time-slots" id="time-slots"></div>
+    </div>
+
+    <script>
+        const timeSlotsContainer = document.getElementById('time-slots');
+        const selectedDateElement = document.getElementById('selected-date');
+        const prevDayButton = document.getElementById('prev-day');
+        const nextDayButton = document.getElementById('next-day');
+
+        let selectedDate = new Date();
+        let bookedSlots = {
+            '2024-12-06': ['10:00 AM', '01:00 PM'],
+        };
+
+        const timeSlots = [
+            '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
+            '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM'
+        ];
+
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function renderCalendar() {
+            const formattedDate = formatDate(selectedDate);
+            selectedDateElement.textContent = selectedDate.toDateString();
+            timeSlotsContainer.innerHTML = '';
+
+            timeSlots.forEach(slot => {
+                const slotElement = document.createElement('div');
+                slotElement.textContent = slot;
+                slotElement.classList.add('time-slot');
+
+                if (bookedSlots[formattedDate]?.includes(slot)) {
+                    slotElement.classList.add('unavailable');
+                } else {
+                    slotElement.classList.add('available');
+                    slotElement.addEventListener('click', () => bookSlot(slot));
+                }
+
+                timeSlotsContainer.appendChild(slotElement);
+            });
+        }
+
+        function bookSlot(slot) {
+            const formattedDate = formatDate(selectedDate);
+
+            if (!bookedSlots[formattedDate]) {
+                bookedSlots[formattedDate] = [];
+            }
+
+            bookedSlots[formattedDate].push(slot);
+            alert(`You have booked the ${slot} slot on ${formattedDate}.`);
+            renderCalendar();
+        }
+
+        prevDayButton.addEventListener('click', () => {
+            selectedDate.setDate(selectedDate.getDate() - 1);
+            renderCalendar();
+        });
+
+        nextDayButton.addEventListener('click', () => {
+            selectedDate.setDate(selectedDate.getDate() + 1);
+            renderCalendar();
+        });
+
+        // Initial render
+        renderCalendar();
+    </script>
+</body>
+</html>
